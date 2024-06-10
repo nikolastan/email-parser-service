@@ -9,17 +9,17 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["EmailParserService/EmailParserService.csproj", "EmailParserService/"]
-RUN dotnet restore "./EmailParserService/./EmailParserService.csproj"
+COPY ["EmailParserService.WebAPI/EmailParserService.WebAPI.csproj", "EmailParserService.WebAPI/"]
+RUN dotnet restore "./EmailParserService.WebAPI/./EmailParserService.WebAPI.csproj"
 COPY . .
-WORKDIR "/src/EmailParserService"
-RUN dotnet build "./EmailParserService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/EmailParserService.WebAPI"
+RUN dotnet build "./EmailParserService.WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./EmailParserService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./EmailParserService.WebAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "EmailParserService.dll"]
+ENTRYPOINT ["dotnet", "EmailParserService.WebAPI.dll"]
